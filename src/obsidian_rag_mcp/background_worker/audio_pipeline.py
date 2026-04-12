@@ -23,8 +23,10 @@ def process_audio_to_markdown(
     generation_mode = ""
     try:
         asr_runtime.load()
-        transcript = transcribe_audio_fallback(source_audio)
+        transcript = asr_runtime.transcribe(source_audio)
         asr_runtime.eject()
+
+        print("transcription:", transcript)
 
         generation_mode = llm_runtime.ensure_generation_mode()
         tags = _choose_tags(transcript, llm_client, tag_catalog)
