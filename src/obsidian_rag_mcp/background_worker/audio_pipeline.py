@@ -29,6 +29,7 @@ def process_audio_to_markdown(
     transcribe_local: bool = False,
 ) -> JobResult:
     try:
+        vault_root = output_md if output_md.is_dir() else output_md.parent
         source_audio = compress_for_asr_tempdir(source_audio)
 
         if transcribe_local:
@@ -53,11 +54,11 @@ def process_audio_to_markdown(
 
         tags = tag_catalog.store.get_tags()
 
-        prompt = get_normalize_to_markdown(", ".join(tags), transcript, ",".join(str(p) for p in output_md.rglob("*") if p.is_dir()), source_audio)
+        prompt = get_normalize_to_markdown(", ".join(tags), transcript, ",".join(str(p) for p in vault_root.rglob("*") if p.is_dir()), source_audio)
 
         json_response = llm_client.chat(prompt, generation_mode = generation_mode)
 
-        output_md, tags = process_json_response(json_response, output_md)
+        output_md, tags = process_json_response(json_response, vault_root)
 
         tag_catalog.persist_doc_tags(str(output_md), tags)
 
@@ -66,5 +67,4 @@ def process_audio_to_markdown(
         LOG.exception("audio pipeline failed")
         asr_runtime.eject()
         return JobResult(source_path=source_audio, success=False, message=str(exc))
-
 
