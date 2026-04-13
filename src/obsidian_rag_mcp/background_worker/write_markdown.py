@@ -3,7 +3,7 @@ import re
 from pathlib import Path
 
 
-def process_json_response(json_parameters: str, obsidian_vault_path: Path) -> tuple[Path, list[str]]:
+def     process_json_response(json_parameters: str, obsidian_vault_path: Path) -> tuple[Path, list[str]]:
     """
     Parses LLM JSON output and creates a markdown file in the given Obsidian vault.
 
@@ -35,6 +35,11 @@ def process_json_response(json_parameters: str, obsidian_vault_path: Path) -> tu
 
     # Extract fields
     file_name = safe_filename(data.get("fileName", "Untitled Note"))
+    path = safe_filename(data.get("relativePath", obsidian_vault_path))
+
+    if not Path(path).is_absolute():
+        path = obsidian_vault_path / path
+
     content = data.get("content", "")
     tags = data.get("tags", [])
 
@@ -47,11 +52,12 @@ def process_json_response(json_parameters: str, obsidian_vault_path: Path) -> tu
         raise ValueError("Content is empty. Cannot create markdown file.")
 
     # Ensure vault path exists
-    vault_path = obsidian_vault_path
+    vault_path = path
     vault_path.mkdir(parents=True, exist_ok=True)
 
     # Create file path
-    file_path = vault_path / f"{file_name}.md"
+    if path.suffix.lower() != ".md":
+        file_path = vault_path / f"{file_name}.md"
 
     # Avoid overwriting existing files
     counter = 1

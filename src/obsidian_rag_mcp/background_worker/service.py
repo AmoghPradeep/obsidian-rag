@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import time
+import shutil
 from pathlib import Path
 
 from obsidian_rag_mcp.background_worker.audio_pipeline import process_audio_to_markdown
@@ -15,6 +16,7 @@ from obsidian_rag_mcp.rag_core.indexing import index_markdown_document
 from obsidian_rag_mcp.rag_core.llm_client import OpenAICompatibleClient
 from obsidian_rag_mcp.rag_core.tags import TagCatalog
 from obsidian_rag_mcp.rag_core.vector_store.sqlite_store import SQLiteVectorStore
+from obsidian_rag_mcp.background_worker.file_utils import hash_file
 
 LOG = logging.getLogger(__name__)
 
@@ -45,8 +47,19 @@ class BackgroundWorker:
             if iteration == job_count:
                 is_last_job = True
             source = Path(job.source_path)
+            hash_ = hash_file(source)
+            if not self.vector_store.match_hash(job.source_path, hash_):
+                self.vector_store.upsert_doc_hash(job.source_path, hash_)
+            else:
+                continue
+            dest_dir = self.config.vault_path / "z.rawdata"
+            dest_dir.mkdir(parents=True, exist_ok=True)
+            hashed_name = f"{source.stem}_{hash_}{source.suffix}"
+            shutil.copy(source, dest_dir / hashed_name)
+
             out_path = self.config.vault_path
-            result = self._run_job_with_retry(job.job_type, source, out_path, is_last_job)
+            result = self._run_job_with_retry(job.job_type, dest_dir / hashed_name, out_path, is_last_job)
+
             if result.success and result.output_doc:
                 text = result.output_doc.read_text(encoding="utf-8")
                 count = index_markdown_document(

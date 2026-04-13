@@ -5,6 +5,7 @@ import os
 
 from pathlib import Path
 from openai import OpenAI
+from hashlib import sha256
 
 from obsidian_rag_mcp.background_worker.llm_runtime import ASRRuntimeManager, LLMRuntimeManager
 from obsidian_rag_mcp.models import JobResult
@@ -12,6 +13,7 @@ from obsidian_rag_mcp.rag_core.llm_client import OpenAICompatibleClient
 from obsidian_rag_mcp.rag_core.tags import TagCatalog
 from obsidian_rag_mcp.background_worker.system_prompts import get_normalize_to_markdown
 from obsidian_rag_mcp.background_worker.write_markdown import process_json_response
+from obsidian_rag_mcp.background_worker.file_utils import compress_for_asr_tempdir
 
 LOG = logging.getLogger(__name__)
 
@@ -27,6 +29,8 @@ def process_audio_to_markdown(
     transcribe_local: bool = False,
 ) -> JobResult:
     try:
+        source_audio = compress_for_asr_tempdir(source_audio)
+
         if transcribe_local:
             asr_runtime.load()
             transcript = asr_runtime.transcribe(source_audio)
@@ -49,7 +53,7 @@ def process_audio_to_markdown(
 
         tags = tag_catalog.store.get_tags()
 
-        prompt = get_normalize_to_markdown(", ".join(tags), transcript)
+        prompt = get_normalize_to_markdown(", ".join(tags), transcript, ",".join(str(p) for p in output_md.rglob("*") if p.is_dir()), source_audio)
 
         json_response = llm_client.chat(prompt, generation_mode = generation_mode)
 
@@ -62,3 +66,5 @@ def process_audio_to_markdown(
         LOG.exception("audio pipeline failed")
         asr_runtime.eject()
         return JobResult(source_path=source_audio, success=False, message=str(exc))
+
+

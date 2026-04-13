@@ -73,6 +73,36 @@ class SQLiteVectorStore(VectorStore):
                 """
             )
 
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS doc_hashes (
+                    doc_name TEXT PRIMARY KEY,
+                    doc_hash TEXT NOT NULL
+                )
+                """
+            )
+            
+    def upsert_doc_hash(self, doc_name: str, doc_hash: str) -> None:
+        with self._connect() as conn:
+            conn.execute(
+                """
+                INSERT INTO doc_hashes (doc_name, doc_hash)
+                VALUES (?, ?)
+                ON CONFLICT(doc_name)
+                DO UPDATE SET doc_hash = excluded.doc_hash
+                """,
+                (doc_name, doc_hash),
+            )
+
+    def match_hash(self, doc_name: str, doc_hash: str) -> bool:
+        with self._connect() as conn:
+            row = conn.execute(
+                "SELECT doc_hash FROM doc_hashes WHERE doc_name = ?",
+                (doc_name,),
+            ).fetchone()
+
+        return row is not None and row["doc_hash"] == doc_hash
+
     def add_usage_log(
             self,
             model: str,
