@@ -5,6 +5,9 @@ from pathlib import Path
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+DEFAULT_ENV_DIR = Path.home() / ".obragconfig"
+DEFAULT_ENV_FILE = DEFAULT_ENV_DIR / ".env"
+
 
 class ChunkingConfig(BaseModel):
     chunk_size: int = 800
@@ -20,7 +23,12 @@ class ModelConfig(BaseModel):
 
 
 class AppConfig(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="OBRAG_", env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_prefix="OBRAG_",
+        env_file=str(DEFAULT_ENV_FILE),
+        env_nested_delimiter="__",
+        extra="ignore",
+    )
 
     transcribe_local: bool = Field(default=False)
     vault_path: Path = Field(default=Path(r"C:\Users\Welcome\Documents\amogh-brain"))
@@ -35,6 +43,7 @@ class AppConfig(BaseSettings):
 
 
 def load_config() -> AppConfig:
+    DEFAULT_ENV_DIR.mkdir(parents=True, exist_ok=True)
     cfg = AppConfig()
     cfg.vault_path.mkdir(parents=True, exist_ok=True)
     cfg.audio_watch_path.mkdir(parents=True, exist_ok=True)
