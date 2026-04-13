@@ -32,7 +32,7 @@ class EmbeddingService:
 
                 response = client.embeddings.create(
                     input= batch,
-                    model="text-embedding-3-large"
+                    model=self.model
                 )
 
                 embeddings: list[list[float]] = [
