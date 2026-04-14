@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 import shutil
+from dataclasses import asdict
 from dataclasses import dataclass
 from difflib import SequenceMatcher
 from pathlib import Path
@@ -73,7 +74,7 @@ class MCPTools:
             metrics.skipped += 1
 
         self.manifest.save(current)
-        return metrics.__dict__
+        return asdict(metrics)
 
     def query_vault_context(self, query: str, k: int = 5) -> dict:
         results = self.retrieval.query(query, k)

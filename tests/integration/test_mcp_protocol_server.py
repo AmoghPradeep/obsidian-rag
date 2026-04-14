@@ -111,7 +111,8 @@ def test_mcp_update_markdown_note_success_and_ambiguity(tmp_path: Path, monkeypa
     vault = tmp_path / "vault"
     audio = tmp_path / "audio"
     pdf = tmp_path / "pdf"
-    for p in (vault, audio, pdf):
+    images = tmp_path / "images"
+    for p in (vault, audio, pdf, images):
         p.mkdir(parents=True, exist_ok=True)
 
     target = vault / "scratch" / "My Note.md"
@@ -122,6 +123,7 @@ def test_mcp_update_markdown_note_success_and_ambiguity(tmp_path: Path, monkeypa
         vault_path=vault,
         audio_watch_path=audio,
         pdf_watch_path=pdf,
+        image_watch_path=images,
         db_path=tmp_path / "db.sqlite3",
         queue_path=tmp_path / "jobs.jsonl",
         manifest_path=tmp_path / "manifest.json",
@@ -159,6 +161,10 @@ def test_mcp_update_markdown_note_success_and_ambiguity(tmp_path: Path, monkeypa
     assert success_payload["changes_applied"] is True
     assert Path(success_payload["new_path"]).exists()
 
+    sibling = vault / "knowledge" / "notes" / "My Note Copy.md"
+    sibling.parent.mkdir(parents=True, exist_ok=True)
+    sibling.write_text("# Copy", encoding="utf-8")
+
     monkeypatch.setattr(tools.llm_client, "chat", lambda *_args, **_kwargs: '{"selected_path":"","confidence":0.2}')
     ambiguous = runtime.handle_message(
         {
@@ -167,7 +173,7 @@ def test_mcp_update_markdown_note_success_and_ambiguity(tmp_path: Path, monkeypa
             "method": "tools/call",
             "params": {
                 "name": "update_markdown_note",
-                "arguments": {"note_reference": "my note", "update_context": "", "confidence_threshold": 0.8},
+                "arguments": {"note_reference": "note", "update_context": "", "confidence_threshold": 0.8},
             },
         }
     )

@@ -1,15 +1,22 @@
 from __future__ import annotations
 
+import gc
 import logging
 import time
-from transformers import AutoProcessor, CohereAsrForConditionalGeneration
-from transformers.audio_utils import load_audio
-import torch
-import gc
 from pathlib import Path
 from typing import Optional, Union
 
 import httpx
+
+try:
+    import torch
+    from transformers import AutoProcessor, CohereAsrForConditionalGeneration
+    from transformers.audio_utils import load_audio
+except ImportError:  # pragma: no cover - optional runtime dependency
+    torch = None
+    AutoProcessor = None
+    CohereAsrForConditionalGeneration = None
+    load_audio = None
 
 LOG = logging.getLogger(__name__)
 
@@ -49,12 +56,14 @@ class ASRRuntimeManager:
     def __init__(self, model_name: str) -> None:
         self.model_name = model_name
         self.loaded = False
-        self.processor: Optional[AutoProcessor] = None
-        self.model: Optional[CohereAsrForConditionalGeneration] = None
+        self.processor: Optional[object] = None
+        self.model: Optional[object] = None
 
     def load(self) -> None:
         if self.loaded:
             return
+        if AutoProcessor is None or CohereAsrForConditionalGeneration is None:
+            raise RuntimeError("transformers runtime dependencies are not installed")
 
         local_path = Path(__file__).resolve().parents[3] / "models" / "cohere-transcribe-03-2026"
 
@@ -80,6 +89,8 @@ class ASRRuntimeManager:
     ) -> str:
         if not self.loaded or self.processor is None or self.model is None:
             raise RuntimeError("Model is not loaded. Call load() first.")
+        if load_audio is None:
+            raise RuntimeError("transformers runtime dependencies are not installed")
 
         audio = load_audio(str(audio_path), sampling_rate=sampling_rate)
 
@@ -109,5 +120,5 @@ class ASRRuntimeManager:
 
         gc.collect()
 
-        if torch.cuda.is_available():
+        if torch is not None and torch.cuda.is_available():
             torch.cuda.empty_cache()

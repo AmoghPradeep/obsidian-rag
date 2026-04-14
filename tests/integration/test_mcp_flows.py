@@ -8,7 +8,8 @@ def test_mcp_reindex_and_query(tmp_path: Path) -> None:
     vault = tmp_path / "vault"
     audio = tmp_path / "audio"
     pdf = tmp_path / "pdf"
-    for p in (vault, audio, pdf):
+    images = tmp_path / "images"
+    for p in (vault, audio, pdf, images):
         p.mkdir(parents=True, exist_ok=True)
 
     (vault / "note.md").write_text("# Content\nTransformers and attention mechanisms", encoding="utf-8")
@@ -17,6 +18,7 @@ def test_mcp_reindex_and_query(tmp_path: Path) -> None:
         vault_path=vault,
         audio_watch_path=audio,
         pdf_watch_path=pdf,
+        image_watch_path=images,
         db_path=tmp_path / "db.sqlite3",
         queue_path=tmp_path / "jobs.jsonl",
         manifest_path=tmp_path / "manifest.json",

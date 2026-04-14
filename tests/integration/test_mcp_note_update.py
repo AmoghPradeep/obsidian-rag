@@ -8,7 +8,8 @@ def test_update_markdown_note_flow(tmp_path: Path, monkeypatch) -> None:
     vault = tmp_path / "vault"
     audio = tmp_path / "audio"
     pdf = tmp_path / "pdf"
-    for p in (vault, audio, pdf):
+    images = tmp_path / "images"
+    for p in (vault, audio, pdf, images):
         p.mkdir(parents=True, exist_ok=True)
 
     target = vault / "scratch" / "My Note.md"
@@ -19,6 +20,7 @@ def test_update_markdown_note_flow(tmp_path: Path, monkeypatch) -> None:
         vault_path=vault,
         audio_watch_path=audio,
         pdf_watch_path=pdf,
+        image_watch_path=images,
         db_path=tmp_path / "db.sqlite3",
         queue_path=tmp_path / "jobs.jsonl",
         manifest_path=tmp_path / "manifest.json",
@@ -56,7 +58,8 @@ def test_update_markdown_note_ambiguous_no_change(tmp_path: Path, monkeypatch) -
     vault = tmp_path / "vault"
     audio = tmp_path / "audio"
     pdf = tmp_path / "pdf"
-    for p in (vault, audio, pdf):
+    images = tmp_path / "images"
+    for p in (vault, audio, pdf, images):
         p.mkdir(parents=True, exist_ok=True)
 
     a = vault / "alpha.md"
@@ -68,6 +71,7 @@ def test_update_markdown_note_ambiguous_no_change(tmp_path: Path, monkeypatch) -
         vault_path=vault,
         audio_watch_path=audio,
         pdf_watch_path=pdf,
+        image_watch_path=images,
         db_path=tmp_path / "db.sqlite3",
         queue_path=tmp_path / "jobs.jsonl",
         manifest_path=tmp_path / "manifest.json",

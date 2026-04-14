@@ -1,0 +1,14 @@
+[Unit]
+Description=Obsidian RAG Background Worker
+After=network.target
+
+[Service]
+Type=simple
+EnvironmentFile=%h/.obragconfig/.env
+WorkingDirectory=%h/personal/obsidian-rag
+ExecStart=/usr/bin/env obsidian-rag-background
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

@@ -135,10 +135,12 @@ Existing tags:
 '''
 
 
-def get_pdf_note_json_prompt(tags, extracted_content, summary, dir_structure, raw_pdf_backlink):
+def get_page_document_note_json_prompt(tags, extracted_content, summary, dir_structure, source_resources):
     return f'''
 # SYSTEM
-You are given the raw OCR transcript of a handwritten note extracted from a PDF.
+Create a normalized Obsidian markdown note from page-image transcription.
+
+You are given the raw OCR transcript of a handwritten note extracted from one or more page images.
 
 Your task is to turn that noisy transcript into a clean, polished, well-structured knowledge note.
 
@@ -210,8 +212,9 @@ Be concise and structured.
 - Avoid niche or overly specific tags
 
 ## 4. Resources
-- backlink to original raw file. This should be in obsidian format - as a link to the raw file. 
-raw file location : {raw_pdf_backlink}
+- backlink to the original raw source resources. This should be in obsidian format.
+raw source resources :
+{source_resources}
 
 
 Directory Structure:
@@ -227,3 +230,7 @@ Summary:
 Tags:
 {tags}
 '''
+
+
+def get_pdf_note_json_prompt(tags, extracted_content, summary, dir_structure, raw_pdf_backlink):
+    return get_page_document_note_json_prompt(tags, extracted_content, summary, dir_structure, raw_pdf_backlink)

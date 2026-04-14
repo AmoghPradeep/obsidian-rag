@@ -4,8 +4,8 @@
 
 Configuration is loaded in this order:
 
-1. Windows environment variables prefixed with `OBRAG_`
-2. `.env` file at `C:\Users\<current_user>\.obragconfig\.env`
+1. Environment variables prefixed with `OBRAG_`
+2. `.env` file at `~/.obragconfig/.env`
 3. Code defaults
 
 Nested config keys use `__` separators (for example `OBRAG_MODELS__GENERATION_MODEL`).
@@ -13,9 +13,11 @@ Nested config keys use `__` separators (for example `OBRAG_MODELS__GENERATION_MO
 - `OBRAG_VAULT_PATH`
 - `OBRAG_AUDIO_WATCH_PATH`
 - `OBRAG_PDF_WATCH_PATH`
+- `OBRAG_IMAGE_WATCH_PATH`
 - `OBRAG_DB_PATH`
 - `OBRAG_MANIFEST_PATH`
 - `OBRAG_QUEUE_PATH`
+- `OBRAG_WATCHER_STABILITY_SECONDS`
 - `OBRAG_TRANSCRIBE_LOCAL`
 - `OBRAG_MODELS__LLM_SERVICE_URL` (default `http://localhost:1234`)
 - `OBRAG_MODELS__GENERATION_MODEL`
@@ -24,18 +26,21 @@ Nested config keys use `__` separators (for example `OBRAG_MODELS__GENERATION_MO
 - `OBRAG_CHUNKING__CHUNK_SIZE` (default `800`)
 - `OBRAG_CHUNKING__CHUNK_OVERLAP` (default `120`)
 
-Create/update `C:\Users\<current_user>\.obragconfig\.env`:
+Create/update `~/.obragconfig/.env`:
 
 ```dotenv
-OBRAG_VAULT_PATH=C:\Users\<current_user>\Documents\amogh-brain
-OBRAG_AUDIO_WATCH_PATH=C:\Users\<current_user>\incoming\audio
-OBRAG_PDF_WATCH_PATH=C:\Users\<current_user>\incoming\pdf
-OBRAG_DB_PATH=C:\Users\<current_user>\.obragconfig\data\rag.sqlite3
+OBRAG_VAULT_PATH=/home/<current_user>/Documents/obsidian-rag-vault
+OBRAG_AUDIO_WATCH_PATH=/home/<current_user>/.obragconfig/incoming/audio
+OBRAG_PDF_WATCH_PATH=/home/<current_user>/.obragconfig/incoming/pdf
+OBRAG_IMAGE_WATCH_PATH=/home/<current_user>/.obragconfig/incoming/images
+OBRAG_DB_PATH=/home/<current_user>/.obragconfig/data/rag.sqlite3
 OBRAG_MODELS__GENERATION_MODEL=gpt-5.4-mini
 OBRAG_MODELS__ASR_MODEL=gpt-4o-mini-transcribe
 OBRAG_MODELS__EMBEDDING_MODEL=text-embedding-3-large
 OBRAG_TRANSCRIBE_LOCAL=false
 ```
+
+Each immediate child directory under `OBRAG_IMAGE_WATCH_PATH` is treated as one multi-image document. For example, `.../images/note-1/image-1-of-3.png` and `image-2-of-3.png` are combined into one markdown note.
 
 ## Start background worker
 
@@ -65,26 +70,35 @@ The server exposes two tools:
 
 See `docs/mcp-migration.md` for migration details from the legacy custom JSON loop.
 
-## Windows startup task
+## Linux service setup
+
+Copy `scripts/obrag-background.service.example` to `~/.config/systemd/user/obrag-background.service`, adjust `WorkingDirectory` if needed, then enable it:
+
+```bash
+mkdir -p ~/.config/systemd/user
+cp scripts/obrag-background.service.example ~/.config/systemd/user/obrag-background.service
+systemctl --user daemon-reload
+systemctl --user enable --now obrag-background.service
+```
+
+## Updating config for Linux service
+
+1. Edit `~/.obragconfig/.env`.
+2. Restart the user service so it reloads variables.
+
+```bash
+systemctl --user restart obrag-background.service
+```
+
+Note: config is read only at process startup. Changes do not apply until restart.
+
+## Windows compatibility
+
+Windows remains supported through explicit path overrides and the existing Task Scheduler script:
 
 ```powershell
 .\scripts\register-startup-task.ps1
 ```
-
-## Updating config for startup process
-
-1. Edit `C:\Users\<current_user>\.obragconfig\.env`.
-2. End the currently running scheduled task.
-3. Start it again so it reloads variables.
-
-```powershell
-schtasks /End /TN "ObsidianRAGBackgroundWorker"
-schtasks /Run /TN "ObsidianRAGBackgroundWorker"
-```
-
-Alternative (Task Scheduler UI): `End` -> `Run`.
-
-Note: config is read only at process startup. Changes do not apply until restart.
 
 ## Recovery
 

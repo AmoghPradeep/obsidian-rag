@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import logging
-import time
 import shutil
 import tempfile
+import time
 from pathlib import Path
 
 from obsidian_rag_mcp.background_worker.audio_pipeline import process_audio_to_markdown
+from obsidian_rag_mcp.background_worker.image_folder_pipeline import process_image_folder_to_markdown
 from obsidian_rag_mcp.background_worker.llm_runtime import ASRRuntimeManager, LLMRuntimeManager
 from obsidian_rag_mcp.background_worker.pdf_pipeline import process_pdf_to_markdown
 from obsidian_rag_mcp.background_worker.queue import DurableJobQueue
@@ -35,7 +36,13 @@ class BackgroundWorker:
         self.transcribe_local = self.config.transcribe_local
 
     def scan_once(self) -> dict[str, int]:
-        return scan_and_enqueue(self.config.audio_watch_path, self.config.pdf_watch_path, self.queue)
+        return scan_and_enqueue(
+            self.config.audio_watch_path,
+            self.config.pdf_watch_path,
+            self.config.image_watch_path,
+            self.queue,
+            stability_seconds=self.config.watcher_stability_seconds,
+        )
 
     def process_queue_once(self) -> dict[str, int]:
         jobs = self.queue.pop_all()
@@ -48,20 +55,14 @@ class BackgroundWorker:
             if iteration == job_count:
                 is_last_job = True
             source = Path(job.source_path)
-            hash_ = hash_file(source)
-            if not self.vector_store.match_hash(job.source_path, hash_):
-                self.vector_store.upsert_doc_hash(job.source_path, hash_)
-            else:
+            if self.vector_store.match_hash(job.source_path, job.idempotency_key):
                 continue
-            dest_dir = self.config.vault_path / "z.rawdata" / job.job_type
-            dest_dir.mkdir(parents=True, exist_ok=True)
-            hashed_name = f"{source.stem}_{hash_}{source.suffix}"
-            shutil.copy(source, dest_dir / hashed_name)
 
-            out_path = self.config.vault_path
-            result = self._run_job_with_retry(job.job_type, dest_dir / hashed_name, out_path, is_last_job)
+            prepared_source = self._prepare_source(job, source)
+            result = self._run_job_with_retry(job.job_type, prepared_source, self.config.vault_path, is_last_job)
 
             if result.success and result.output_doc:
+                self.vector_store.upsert_doc_hash(job.source_path, job.idempotency_key)
                 text = result.output_doc.read_text(encoding="utf-8")
                 count = index_markdown_document(
                     result.output_doc,
@@ -100,7 +101,7 @@ class BackgroundWorker:
                     is_last_job=is_last_job,
                     transcribe_local=self.transcribe_local,
                 )
-            else:
+            elif job_type == "pdf":
                 last_result = process_pdf_to_markdown(
                     source_pdf=source,
                     output_md=out_path,
@@ -109,7 +110,32 @@ class BackgroundWorker:
                     llm_client=self.llm_client,
                     tag_catalog=self.tag_catalog,
                 )
+            elif job_type == "image_folder":
+                last_result = process_image_folder_to_markdown(
+                    source_dir=source,
+                    output_md=out_path,
+                    llm_client=self.llm_client,
+                    tag_catalog=self.tag_catalog,
+                )
+            else:
+                raise ValueError(f"unsupported job type: {job_type}")
             if last_result.success:
                 return last_result
             LOG.warning("Job failed type=%s source=%s attempt=%s", job_type, source, attempt + 1)
         return last_result
+
+    def _prepare_source(self, job, source: Path) -> Path:
+        raw_root = self.config.vault_path / "z.rawdata" / job.job_type
+        raw_root.mkdir(parents=True, exist_ok=True)
+
+        if job.job_type == "image_folder":
+            destination = raw_root / f"{source.name}_{job.idempotency_key[:12]}"
+            if destination.exists():
+                shutil.rmtree(destination)
+            shutil.copytree(source, destination)
+            return destination
+
+        file_hash = hash_file(source)
+        destination = raw_root / f"{source.stem}_{file_hash}{source.suffix}"
+        shutil.copy(source, destination)
+        return destination
