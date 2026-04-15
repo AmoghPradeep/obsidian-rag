@@ -24,19 +24,6 @@ class QueryVaultContextInput(BaseModel):
     k: int = Field(default=5, ge=1, le=20, description="Maximum number of chunks to return.")
 
 
-class UpdateMarkdownNoteInput(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    note_reference: str = Field(min_length=1, description="User provided markdown note reference.")
-    update_context: str = Field(default="", description="Optional extra context to guide summary and tags.")
-    confidence_threshold: float = Field(
-        default=0.65,
-        ge=0.0,
-        le=1.0,
-        description="Minimum confidence required before mutating any file.",
-    )
-
-
 class MCPRequestError(Exception):
     def __init__(self, code: int, message: str, data: dict[str, Any] | None = None) -> None:
         super().__init__(message)
@@ -48,10 +35,7 @@ class MCPRequestError(Exception):
 class MCPRuntime:
     def __init__(self, tools: MCPTools) -> None:
         self.tools = tools
-        self.tool_schemas = {
-            "query_vault_context": QueryVaultContextInput.model_json_schema(),
-            "update_markdown_note": UpdateMarkdownNoteInput.model_json_schema(),
-        }
+        self.tool_schemas = {"query_vault_context": QueryVaultContextInput.model_json_schema()}
 
     def tool_definitions(self) -> list[dict[str, Any]]:
         return [
@@ -59,11 +43,6 @@ class MCPRuntime:
                 "name": "query_vault_context",
                 "description": "Fetch top-k vault chunks relevant to a query using vector similarity.",
                 "inputSchema": self.tool_schemas["query_vault_context"],
-            },
-            {
-                "name": "update_markdown_note",
-                "description": "Resolve and update a vault markdown note with managed Summary/Tags, optional move, and reindex.",
-                "inputSchema": self.tool_schemas["update_markdown_note"],
             },
         ]
 
@@ -136,22 +115,6 @@ class MCPRuntime:
             parsed = self._validate_tool_arguments(name, QueryVaultContextInput, arguments)
             try:
                 payload = self.tools.query_vault_context(parsed.query, parsed.k)
-            except Exception as exc:
-                raise MCPRequestError(
-                    -32000,
-                    "Tool execution failed",
-                    {"tool": name, "type": exc.__class__.__name__},
-                ) from exc
-            LOG.info("Completed MCP tool call tool=%s", name)
-            return _tool_success(payload)
-        if name == "update_markdown_note":
-            parsed = self._validate_tool_arguments(name, UpdateMarkdownNoteInput, arguments)
-            try:
-                payload = self.tools.update_markdown_note(
-                    parsed.note_reference,
-                    parsed.update_context,
-                    confidence_threshold=parsed.confidence_threshold,
-                )
             except Exception as exc:
                 raise MCPRequestError(
                     -32000,

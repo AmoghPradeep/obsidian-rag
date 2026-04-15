@@ -6,17 +6,17 @@ from obsidian_rag_mcp.config import AppConfig
 
 def test_pdf_ingestion_end_to_end(tmp_path: Path, monkeypatch) -> None:
     vault = tmp_path / "vault"
-    audio = tmp_path / "audio"
-    pdf = tmp_path / "pdf"
-    images = tmp_path / "images"
-    for p in (vault, audio, pdf, images):
+    incoming = tmp_path / "incoming"
+    audio = incoming / "audio"
+    pdf = incoming / "pdf"
+    image = incoming / "image"
+    text = incoming / "text"
+    for p in (vault, audio, pdf, image, text):
         p.mkdir(parents=True, exist_ok=True)
 
     cfg = AppConfig(
         vault_path=vault,
-        audio_watch_path=audio,
-        pdf_watch_path=pdf,
-        image_watch_path=images,
+        incoming_root=incoming,
         db_path=tmp_path / "db.sqlite3",
         queue_path=tmp_path / "jobs.jsonl",
         manifest_path=tmp_path / "manifest.json",
@@ -49,6 +49,7 @@ def test_pdf_ingestion_end_to_end(tmp_path: Path, monkeypatch) -> None:
     queued = worker.scan_once()
     assert queued["pdf"] == 1
     assert queued["image_folder"] == 0
+    assert queued["text"] == 0
     metrics = worker.process_queue_once()
     assert metrics["processed"] == 1
 

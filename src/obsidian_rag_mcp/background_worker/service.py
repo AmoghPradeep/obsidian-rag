@@ -9,6 +9,7 @@ from pathlib import Path
 from obsidian_rag_mcp.background_worker.audio_pipeline import process_audio_to_markdown
 from obsidian_rag_mcp.background_worker.image_folder_pipeline import process_image_folder_to_markdown
 from obsidian_rag_mcp.background_worker.pdf_pipeline import process_pdf_to_markdown
+from obsidian_rag_mcp.background_worker.text_pipeline import process_text_to_markdown
 from obsidian_rag_mcp.background_worker.queue import DurableJobQueue
 from obsidian_rag_mcp.background_worker.watchers import scan_and_enqueue
 from obsidian_rag_mcp.config import AppConfig
@@ -31,11 +32,12 @@ class BackgroundWorker:
         self.llm_client = OpenAICompatibleClient(config.models.api_base_url, config.models.generation_model)
         self.tag_catalog = TagCatalog(self.vector_store)
         LOG.info(
-            "Initialized background worker vault_path=%s audio_watch_path=%s pdf_watch_path=%s image_watch_path=%s",
+            "Initialized background worker vault_path=%s audio_watch_path=%s pdf_watch_path=%s image_watch_path=%s text_watch_path=%s",
             self.config.vault_path,
             self.config.audio_watch_path,
             self.config.pdf_watch_path,
             self.config.image_watch_path,
+            self.config.text_watch_path,
         )
 
     def scan_once(self) -> dict[str, int]:
@@ -44,6 +46,7 @@ class BackgroundWorker:
             self.config.audio_watch_path,
             self.config.pdf_watch_path,
             self.config.image_watch_path,
+            self.config.text_watch_path,
             self.queue,
             stability_seconds=self.config.watcher_stability_seconds,
         )
@@ -140,6 +143,13 @@ class BackgroundWorker:
             elif job_type == "image_folder":
                 last_result = process_image_folder_to_markdown(
                     source_dir=source,
+                    output_md=out_path,
+                    llm_client=self.llm_client,
+                    tag_catalog=self.tag_catalog,
+                )
+            elif job_type == "text":
+                last_result = process_text_to_markdown(
+                    source_text=source,
                     output_md=out_path,
                     llm_client=self.llm_client,
                     tag_catalog=self.tag_catalog,

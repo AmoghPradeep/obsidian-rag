@@ -11,6 +11,7 @@ from obsidian_rag_mcp.background_worker.queue import DurableJobQueue, IngestionJ
 
 LOG = logging.getLogger(__name__)
 SUPPORTED_IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp"}
+SUPPORTED_TEXT_SUFFIXES = {".txt", ".md"}
 
 
 def compute_idempotency_key(path: Path) -> str:
@@ -49,6 +50,17 @@ def list_supported_image_files(path: Path) -> list[Path]:
     )
 
 
+def list_supported_text_files(path: Path) -> list[Path]:
+    return sorted(
+        [
+            child
+            for child in path.iterdir()
+            if child.is_file() and child.suffix.lower() in SUPPORTED_TEXT_SUFFIXES
+        ],
+        key=lambda child: child.name.lower(),
+    )
+
+
 def is_stable_directory(path: Path, wait_seconds: float = 1.5) -> bool:
     first = _directory_snapshot(path)
     time.sleep(wait_seconds)
@@ -60,15 +72,17 @@ def scan_and_enqueue(
     audio_dir: Path,
     pdf_dir: Path,
     image_dir: Path,
+    text_dir: Path,
     queue: DurableJobQueue,
     stability_seconds: float = 1.5,
 ) -> dict[str, int]:
-    counts = {"audio": 0, "pdf": 0, "image_folder": 0}
+    counts = {"audio": 0, "pdf": 0, "image_folder": 0, "text": 0}
     LOG.debug(
-        "Starting watcher scan audio_dir=%s pdf_dir=%s image_dir=%s stability_seconds=%s",
+        "Starting watcher scan audio_dir=%s pdf_dir=%s image_dir=%s text_dir=%s stability_seconds=%s",
         audio_dir,
         pdf_dir,
         image_dir,
+        text_dir,
         stability_seconds,
     )
     for ext, folder, kind in (("*.m4a", audio_dir, "audio"), ("*.pdf", pdf_dir, "pdf")):
@@ -84,6 +98,19 @@ def scan_and_enqueue(
                 counts[kind] += 1
             else:
                 LOG.debug("Skipping already enqueued file job_type=%s source=%s", kind, file)
+
+    if not text_dir.exists():
+        LOG.debug("Skipping missing text watch directory path=%s", text_dir)
+    else:
+        for file in list_supported_text_files(text_dir):
+            if not is_stable_file(file, wait_seconds=stability_seconds):
+                LOG.info("Deferring unstable file job_type=text source=%s", file)
+                continue
+            job = IngestionJob(job_type="text", source_path=str(file), idempotency_key=compute_idempotency_key(file))
+            if queue.enqueue(job):
+                counts["text"] += 1
+            else:
+                LOG.debug("Skipping already enqueued file job_type=text source=%s", file)
 
     if not image_dir.exists():
         LOG.debug("Skipping missing image watch directory path=%s", image_dir)

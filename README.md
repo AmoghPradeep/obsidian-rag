@@ -2,14 +2,13 @@
 
 Turn an Obsidian vault into a long-term memory system for LLM agents.
 
-This project helps capture knowledge from voice notes, PDFs, and handwritten material, convert it into clean markdown, and make it retrievable through MCP. The result is a memory layer an agent can keep querying over time instead of starting from zero every session.
+This project helps capture knowledge from voice notes, PDFs, handwritten material, and text files, convert it into clean markdown, and make it retrievable through MCP. The result is a memory layer an agent can keep querying over time instead of starting from zero every session.
 
 ## What It Lets You Do
 
 - Capture voice notes and turn them into structured Obsidian notes automatically.
 - Convert PDFs, scans, and handwritten documents into searchable knowledge.
 - Build a semantic memory store over your vault so agents can retrieve relevant context on demand.
-- Let an MCP-connected agent update notes with refreshed summaries and tags without rewriting the original content.
 - Keep knowledge in your own files instead of trapping it inside chat logs or a proprietary app.
 
 ## Why This Exists
@@ -31,7 +30,7 @@ Obsidian RAG MCP is built to close that gap. It gives you a way to continuously 
 At a high level, the system has two jobs:
 
 1. A background worker watches for new source material and turns it into clean markdown in your Obsidian vault.
-2. An MCP server lets agents query that memory store or update existing notes safely.
+2. An MCP server lets agents query that memory store.
 
 The flow looks like this:
 
@@ -41,6 +40,7 @@ Today, the main ingestion paths are:
 
 - audio files such as voice notes
 - PDF documents and exported image folders, including handwritten or scanned material when the API model can interpret them
+- text files such as `.txt` and source `.md` documents
 
 ## Core Experience
 
@@ -56,15 +56,14 @@ That is the core value of this project: persistent memory that compounds over ti
 
 ## Current Capabilities
 
-- Background ingestion for audio, PDF, and multi-image note exports
+- Background ingestion for audio, PDF, multi-image note exports, and text files
 - Markdown normalization and vault-safe note creation
 - Semantic retrieval over indexed vault content
 - MCP tool support for context retrieval
-- MCP tool support for safe note enrichment and reindexing
 
 ## In Progress
 
-The current implementation covers audio files, PDFs, and folders of ordered page images such as Apple Notes exports, with Linux as the primary deployment target.
+The current implementation covers audio files, PDFs, folders of ordered page images such as Apple Notes exports, and text files such as `.txt` and imported `.md`, with Linux as the primary deployment target.
 
 ## Who This Is For
 
@@ -94,6 +93,7 @@ obsidian-rag-mcp-server
 ```
 
 Configuration is read from `OBRAG_` environment variables and `~/.obragconfig/.env`.
+Incoming source files are organized under one configurable root with fixed child directories: `audio`, `pdf`, `image`, and `text`.
 
 For operational setup and recovery details, see [docs/runbook.md](docs/runbook.md).
 

@@ -19,7 +19,6 @@ Use MCP JSON-RPC over stdio instead.
 ## Tool Names
 
 - `query_vault_context`
-- `update_markdown_note`
 
 ## Example
 

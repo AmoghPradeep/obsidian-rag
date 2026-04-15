@@ -78,9 +78,6 @@ def test_mcp_runtime_logs_tool_execution_failure(caplog) -> None:
         def query_vault_context(self, query: str, k: int) -> dict:
             raise RuntimeError("boom")
 
-        def update_markdown_note(self, note_reference: str, update_context: str = "", confidence_threshold: float = 0.65) -> dict:
-            return {}
-
     runtime = MCPRuntime(_ExplodingTools())
 
     with caplog.at_level(logging.WARNING):

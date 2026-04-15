@@ -6,19 +6,19 @@ from obsidian_rag_mcp.mcp_server.tools import MCPTools
 
 def test_mcp_reindex_and_query(tmp_path: Path) -> None:
     vault = tmp_path / "vault"
-    audio = tmp_path / "audio"
-    pdf = tmp_path / "pdf"
-    images = tmp_path / "images"
-    for p in (vault, audio, pdf, images):
+    incoming = tmp_path / "incoming"
+    audio = incoming / "audio"
+    pdf = incoming / "pdf"
+    image = incoming / "image"
+    text = incoming / "text"
+    for p in (vault, audio, pdf, image, text):
         p.mkdir(parents=True, exist_ok=True)
 
     (vault / "note.md").write_text("# Content\nTransformers and attention mechanisms", encoding="utf-8")
 
     cfg = AppConfig(
         vault_path=vault,
-        audio_watch_path=audio,
-        pdf_watch_path=pdf,
-        image_watch_path=images,
+        incoming_root=incoming,
         db_path=tmp_path / "db.sqlite3",
         queue_path=tmp_path / "jobs.jsonl",
         manifest_path=tmp_path / "manifest.json",

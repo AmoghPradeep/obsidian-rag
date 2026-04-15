@@ -26,9 +26,7 @@ def default_runtime_paths(
     return {
         "config_root": config_root,
         "vault_path": documents_root / "obsidian-rag-vault",
-        "audio_watch_path": config_root / "incoming" / "audio",
-        "pdf_watch_path": config_root / "incoming" / "pdf",
-        "image_watch_path": config_root / "incoming" / "images",
+        "incoming_root": config_root / "incoming",
         "db_path": config_root / "data" / "rag.sqlite3",
         "manifest_path": config_root / "data" / "manifest.json",
         "queue_path": config_root / "data" / "jobs.jsonl",
@@ -56,9 +54,7 @@ class AppConfig(BaseSettings):
     )
 
     vault_path: Path = Field(default_factory=lambda: default_runtime_paths()["vault_path"])
-    audio_watch_path: Path = Field(default_factory=lambda: default_runtime_paths()["audio_watch_path"])
-    pdf_watch_path: Path = Field(default_factory=lambda: default_runtime_paths()["pdf_watch_path"])
-    image_watch_path: Path = Field(default_factory=lambda: default_runtime_paths()["image_watch_path"])
+    incoming_root: Path = Field(default_factory=lambda: default_runtime_paths()["incoming_root"])
     db_path: Path = Field(default_factory=lambda: default_runtime_paths()["db_path"])
     manifest_path: Path = Field(default_factory=lambda: default_runtime_paths()["manifest_path"])
     queue_path: Path = Field(default_factory=lambda: default_runtime_paths()["queue_path"])
@@ -67,14 +63,32 @@ class AppConfig(BaseSettings):
     chunking: ChunkingConfig = Field(default_factory=ChunkingConfig)
     models: ModelConfig = Field(default_factory=ModelConfig)
 
+    @property
+    def audio_watch_path(self) -> Path:
+        return self.incoming_root / "audio"
+
+    @property
+    def pdf_watch_path(self) -> Path:
+        return self.incoming_root / "pdf"
+
+    @property
+    def image_watch_path(self) -> Path:
+        return self.incoming_root / "image"
+
+    @property
+    def text_watch_path(self) -> Path:
+        return self.incoming_root / "text"
+
 
 def load_config() -> AppConfig:
     DEFAULT_ENV_DIR.mkdir(parents=True, exist_ok=True)
     cfg = AppConfig()
     cfg.vault_path.mkdir(parents=True, exist_ok=True)
+    cfg.incoming_root.mkdir(parents=True, exist_ok=True)
     cfg.audio_watch_path.mkdir(parents=True, exist_ok=True)
     cfg.pdf_watch_path.mkdir(parents=True, exist_ok=True)
     cfg.image_watch_path.mkdir(parents=True, exist_ok=True)
+    cfg.text_watch_path.mkdir(parents=True, exist_ok=True)
     cfg.db_path.parent.mkdir(parents=True, exist_ok=True)
     cfg.manifest_path.parent.mkdir(parents=True, exist_ok=True)
     cfg.queue_path.parent.mkdir(parents=True, exist_ok=True)

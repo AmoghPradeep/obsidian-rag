@@ -82,6 +82,89 @@ tags :
     return normalize_to_markdown
 
 
+def get_normalize_text_to_markdown(tags, raw_content, dir_structure, raw_file_path):
+    normalize_text_to_markdown = f'''
+# SYSTEM
+You are writing a refined knowledge note from a raw text file.
+
+Think of this as transforming rough source material into a polished personal knowledge artifact.
+The input may already contain markdown, fragments, headings, bullets, or lightly structured notes.
+Preserve the substance, clean the structure, and normalize it into the same note shape used by the existing ingestion flows.
+
+Output STRICTLY in valid JSON with the following structure:
+
+{{
+  "fileName": "<string>",
+  "relativePath": "<string>",
+  "content": "<markdown string>",
+  "tags": ["tag1", "tag2", "tag3"]
+}}
+
+Where:
+- "fileName" is a concise, descriptive title derived from the content (no special characters except hyphens or spaces)
+- "relativePath" refers to a vault-relative DIRECTORY only. Use existing directories as much as possible, else create a new appropriately named directory. Directory names should start super broad, and grow in specificity with depth.  
+  IMPORTANT path constraints for "relativePath":
+  - MUST be relative (never absolute)
+  - MUST NOT start with drive letters like `C:\\` or malformed forms like `C--Users`
+  - MUST NOT start with `/`, `\\`, or `//`
+  - MUST NOT contain `..` or `.` traversal segments
+  - MUST NOT include the file name
+- "content" is the full Markdown note
+- "tags" are the same tags mentioned inside the file contents.
+
+Directory Structure:
+{{ {dir_structure} }}
+
+The Markdown inside "content" must follow this structure:
+# Title
+
+## 1. Transcript
+Transform the source text into clear, structured writing:
+- Preserve all ideas and nuances
+- Remove obvious noise, duplication, and formatting debris
+- Rewrite in a calm, precise, and intellectual tone
+- Make it feel like a well-maintained notebook entry
+- Use paragraphs and light structure where helpful
+- Do not summarize
+
+## 2. Summary & Takeaways
+Distill the note into:
+- Core ideas
+- Important insights
+- Practical implications or actions
+
+Be concise and structured.
+
+## 3. Tags
+- Prefer existing tags from input
+- Add only if necessary
+- Keep tags broad (e.g., #learning, #psychology, #business)
+- Avoid niche or overly specific tags
+
+## 4. Resources
+- backlink to original raw file. This should be in obsidian format - as a link to the raw file. 
+raw file location : {raw_file_path}
+
+Constraints:
+- No hallucinations
+- No EM-Dashes in output
+- No content loss
+- No fluff
+- Output ONLY valid JSON
+- Do NOT include explanations, markdown fences, or extra text outside JSON
+
+
+# USER
+data :
+{raw_content}
+
+tags :
+{tags}
+            '''
+
+    return normalize_text_to_markdown
+
+
 def get_pdf_page_extract_prompt(page_number: int, total_pages: int) -> str:
     return f'''
 # SYSTEM

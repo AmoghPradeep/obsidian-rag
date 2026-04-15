@@ -11,9 +11,7 @@ Configuration is loaded in this order:
 Nested config keys use `__` separators (for example `OBRAG_MODELS__GENERATION_MODEL`).
 
 - `OBRAG_VAULT_PATH`
-- `OBRAG_AUDIO_WATCH_PATH`
-- `OBRAG_PDF_WATCH_PATH`
-- `OBRAG_IMAGE_WATCH_PATH`
+- `OBRAG_INCOMING_ROOT`
 - `OBRAG_DB_PATH`
 - `OBRAG_MANIFEST_PATH`
 - `OBRAG_QUEUE_PATH`
@@ -29,9 +27,7 @@ Create/update `~/.obragconfig/.env`:
 
 ```dotenv
 OBRAG_VAULT_PATH=/home/<current_user>/Documents/obsidian-rag-vault
-OBRAG_AUDIO_WATCH_PATH=/home/<current_user>/.obragconfig/incoming/audio
-OBRAG_PDF_WATCH_PATH=/home/<current_user>/.obragconfig/incoming/pdf
-OBRAG_IMAGE_WATCH_PATH=/home/<current_user>/.obragconfig/incoming/images
+OBRAG_INCOMING_ROOT=/home/<current_user>/.obragconfig/incoming
 OBRAG_DB_PATH=/home/<current_user>/.obragconfig/data/rag.sqlite3
 OBRAG_MODELS__API_BASE_URL=https://api.openai.com/v1
 OBRAG_MODELS__GENERATION_MODEL=gpt-5.4-mini
@@ -39,7 +35,15 @@ OBRAG_MODELS__TRANSCRIPTION_MODEL=gpt-4o-mini-transcribe
 OBRAG_MODELS__EMBEDDING_MODEL=text-embedding-3-large
 ```
 
-Each immediate child directory under `OBRAG_IMAGE_WATCH_PATH` is treated as one multi-image document. For example, `.../images/note-1/image-1-of-3.png` and `image-2-of-3.png` are combined into one markdown note.
+The app derives its watched source folders from `OBRAG_INCOMING_ROOT`:
+
+- `audio`
+- `pdf`
+- `image`
+- `text`
+
+Each immediate child directory under `OBRAG_INCOMING_ROOT/image` is treated as one multi-image document. For example, `.../image/note-1/image-1-of-3.png` and `image-2-of-3.png` are combined into one markdown note.
+Files placed under `OBRAG_INCOMING_ROOT/text` are ingested as text sources when they have `.txt` or `.md` extensions.
 
 ## Start background worker
 
@@ -60,12 +64,10 @@ Example request flow (one JSON object per line):
 {"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}
 {"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}
 {"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"query_vault_context","arguments":{"query":"what did we discuss about meeting notes?","k":5}}}
-{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"update_markdown_note","arguments":{"note_reference":"meeting notes","update_context":"refresh summary and tags"}}}
 ```
 
-The server exposes two tools:
+The server exposes one tool:
 - `query_vault_context`
-- `update_markdown_note`
 
 See `docs/mcp-migration.md` for migration details from the legacy custom JSON loop.
 

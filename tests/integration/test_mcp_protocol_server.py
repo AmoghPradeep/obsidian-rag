@@ -1,8 +1,4 @@
-from pathlib import Path
-
-from obsidian_rag_mcp.config import AppConfig
 from obsidian_rag_mcp.mcp_server.server import MCPRuntime
-from obsidian_rag_mcp.mcp_server.tools import MCPTools
 
 
 class _FakeTools:
@@ -25,24 +21,6 @@ class _FakeTools:
             ],
         }
 
-    def update_markdown_note(self, note_reference: str, update_context: str = "", confidence_threshold: float = 0.65) -> dict:
-        return {
-            "status": "updated",
-            "note_reference": note_reference,
-            "confidence": 0.91,
-            "confidence_threshold": confidence_threshold,
-            "resolved_file": "vault/note.md",
-            "old_path": "vault/note.md",
-            "new_path": "vault/note.md",
-            "moved": False,
-            "path_fallback_used": False,
-            "summary_updated": True,
-            "tags_updated": True,
-            "changes_applied": True,
-            "indexed_chunks": 2,
-            "candidate_count": 1,
-        }
-
 
 def test_mcp_tool_discovery_and_query_invocation() -> None:
     runtime = MCPRuntime(_FakeTools())
@@ -55,7 +33,7 @@ def test_mcp_tool_discovery_and_query_invocation() -> None:
     assert list_resp is not None
     tools = list_resp["result"]["tools"]
     names = [t["name"] for t in tools]
-    assert names == ["query_vault_context", "update_markdown_note"]
+    assert names == ["query_vault_context"]
     query_schema = next(t["inputSchema"] for t in tools if t["name"] == "query_vault_context")
     assert "query" in query_schema["properties"]
 
@@ -107,44 +85,10 @@ def test_mcp_validation_and_runtime_error_contracts() -> None:
     assert runtime_error["error"]["data"]["tool"] == "query_vault_context"
 
 
-def test_mcp_update_markdown_note_success_and_ambiguity(tmp_path: Path, monkeypatch) -> None:
-    vault = tmp_path / "vault"
-    audio = tmp_path / "audio"
-    pdf = tmp_path / "pdf"
-    images = tmp_path / "images"
-    for p in (vault, audio, pdf, images):
-        p.mkdir(parents=True, exist_ok=True)
+def test_removed_update_markdown_note_returns_tool_not_found() -> None:
+    runtime = MCPRuntime(_FakeTools())
 
-    target = vault / "scratch" / "My Note.md"
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text("# My Note\n\nOriginal body content.", encoding="utf-8")
-
-    cfg = AppConfig(
-        vault_path=vault,
-        audio_watch_path=audio,
-        pdf_watch_path=pdf,
-        image_watch_path=images,
-        db_path=tmp_path / "db.sqlite3",
-        queue_path=tmp_path / "jobs.jsonl",
-        manifest_path=tmp_path / "manifest.json",
-    )
-    tools = MCPTools(cfg)
-    runtime = MCPRuntime(tools)
-
-    def fake_chat_success(prompt: str, images=None, require_success=False):
-        if "Pick the best markdown file" in prompt:
-            escaped = str(target).replace("\\", "\\\\")
-            return f'{{"selected_path":"{escaped}","confidence":0.95}}'
-        if "Summarize this markdown note" in prompt:
-            return "- concise summary"
-        if "Return up to 8 broad knowledge-domain tags" in prompt:
-            return "learning,notes"
-        if "Select the best vault-relative directory" in prompt:
-            return "knowledge/notes"
-        return ""
-
-    monkeypatch.setattr(tools.llm_client, "chat", fake_chat_success)
-    success = runtime.handle_message(
+    response = runtime.handle_message(
         {
             "jsonrpc": "2.0",
             "id": 21,
@@ -155,29 +99,7 @@ def test_mcp_update_markdown_note_success_and_ambiguity(tmp_path: Path, monkeypa
             },
         }
     )
-    assert success is not None
-    success_payload = success["result"]["structuredContent"]
-    assert success_payload["status"] == "updated"
-    assert success_payload["changes_applied"] is True
-    assert Path(success_payload["new_path"]).exists()
-
-    sibling = vault / "knowledge" / "notes" / "My Note Copy.md"
-    sibling.parent.mkdir(parents=True, exist_ok=True)
-    sibling.write_text("# Copy", encoding="utf-8")
-
-    monkeypatch.setattr(tools.llm_client, "chat", lambda *_args, **_kwargs: '{"selected_path":"","confidence":0.2}')
-    ambiguous = runtime.handle_message(
-        {
-            "jsonrpc": "2.0",
-            "id": 22,
-            "method": "tools/call",
-            "params": {
-                "name": "update_markdown_note",
-                "arguments": {"note_reference": "note", "update_context": "", "confidence_threshold": 0.8},
-            },
-        }
-    )
-    assert ambiguous is not None
-    ambiguous_payload = ambiguous["result"]["structuredContent"]
-    assert ambiguous_payload["status"] == "ambiguous"
-    assert ambiguous_payload["changes_applied"] is False
+    assert response is not None
+    assert response["error"]["code"] == -32601
+    assert response["error"]["message"] == "Tool not found"
+    assert response["error"]["data"]["tool"] == "update_markdown_note"
