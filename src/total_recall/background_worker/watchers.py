@@ -6,8 +6,8 @@ import re
 import time
 from pathlib import Path
 
-from obsidian_rag_mcp.background_worker.file_utils import hash_file
-from obsidian_rag_mcp.background_worker.queue import DurableJobQueue, IngestionJob
+from total_recall.background_worker.file_utils import hash_file
+from total_recall.background_worker.queue import DurableJobQueue, IngestionJob
 
 LOG = logging.getLogger(__name__)
 SUPPORTED_IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp"}

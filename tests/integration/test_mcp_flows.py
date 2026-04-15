@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from obsidian_rag_mcp.config import AppConfig
-from obsidian_rag_mcp.mcp_server.tools import MCPTools
+from total_recall.config import AppConfig
+from total_recall.mcp_server.tools import MCPTools
 
 
 def test_mcp_reindex_and_query(tmp_path: Path) -> None:

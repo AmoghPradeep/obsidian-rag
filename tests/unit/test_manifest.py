@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from obsidian_rag_mcp.rag_core.manifest import VaultManifest, compute_vault_fingerprints
+from total_recall.rag_core.manifest import VaultManifest, compute_vault_fingerprints
 
 
 def test_manifest_detects_changes(tmp_path: Path) -> None:

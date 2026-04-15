@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from difflib import SequenceMatcher
 
-from obsidian_rag_mcp.rag_core.vector_store.sqlite_store import SQLiteVectorStore
+from total_recall.rag_core.vector_store.sqlite_store import SQLiteVectorStore
 
 
 class TagCatalog:

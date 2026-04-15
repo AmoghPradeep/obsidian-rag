@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from obsidian_rag_mcp.background_worker.queue import DurableJobQueue, IngestionJob
+from total_recall.background_worker.queue import DurableJobQueue, IngestionJob
 
 
 def test_idempotent_enqueue(tmp_path: Path) -> None:

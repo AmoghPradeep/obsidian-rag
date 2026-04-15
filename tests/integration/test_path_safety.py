@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from obsidian_rag_mcp.background_worker.write_markdown import FALLBACK_RELATIVE_DIR, process_json_response
+from total_recall.background_worker.write_markdown import FALLBACK_RELATIVE_DIR, process_json_response
 
 
 def test_path_safety_integration_blocks_absolute_like_paths(tmp_path: Path) -> None:

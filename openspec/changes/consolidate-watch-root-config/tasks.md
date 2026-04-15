@@ -10,4 +10,4 @@
 
 ## 3. Documentation
 
-- [x] 3.1 Update README and runbook configuration examples to describe `OBRAG_INCOMING_ROOT` and the derived `/audio`, `/pdf`, `/image`, and `/text` directories.
+- [x] 3.1 Update README and runbook configuration examples to describe `TOTAL_RECALL_INCOMING_ROOT` and the derived `/audio`, `/pdf`, `/image`, and `/text` directories.

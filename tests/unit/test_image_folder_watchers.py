@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from obsidian_rag_mcp.background_worker.watchers import (
+from total_recall.background_worker.watchers import (
     compute_directory_idempotency_key,
     is_stable_directory,
     list_supported_image_files,
@@ -39,5 +39,5 @@ def test_unstable_directory_is_detected(tmp_path: Path, monkeypatch) -> None:
     def mutate(_seconds: float) -> None:
         image.write_bytes(b"second")
 
-    monkeypatch.setattr("obsidian_rag_mcp.background_worker.watchers.time.sleep", mutate)
+    monkeypatch.setattr("total_recall.background_worker.watchers.time.sleep", mutate)
     assert is_stable_directory(folder, wait_seconds=0.01) is False

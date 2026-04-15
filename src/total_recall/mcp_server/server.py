@@ -7,14 +7,14 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
-from obsidian_rag_mcp.config import AppConfig
-from obsidian_rag_mcp.mcp_server.tools import MCPTools
+from total_recall.config import AppConfig
+from total_recall.mcp_server.tools import MCPTools
 
 LOG = logging.getLogger(__name__)
 
 
 PROTOCOL_VERSION = "2025-03-26"
-SERVER_INFO = {"name": "obsidian-rag-mcp", "version": "0.1.0"}
+SERVER_INFO = {"name": "total-recall", "version": "0.1.0"}
 
 
 class QueryVaultContextInput(BaseModel):

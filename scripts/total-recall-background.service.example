@@ -1,0 +1,14 @@
+[Unit]
+Description=Total Recall Background Worker
+After=network.target
+
+[Service]
+Type=simple
+EnvironmentFile=%h/.total-recall/.env
+WorkingDirectory=%h/personal/total-recall
+ExecStart=/usr/bin/env total-recall-background
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from obsidian_rag_mcp.models import Chunk, RetrievalResult
+from total_recall.models import Chunk, RetrievalResult
 
 
 class VectorStore(ABC):

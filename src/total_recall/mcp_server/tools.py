@@ -5,12 +5,12 @@ from dataclasses import asdict
 from dataclasses import dataclass
 from pathlib import Path
 
-from obsidian_rag_mcp.config import AppConfig
-from obsidian_rag_mcp.rag_core.embeddings import EmbeddingService
-from obsidian_rag_mcp.rag_core.indexing import index_markdown_document
-from obsidian_rag_mcp.rag_core.manifest import VaultManifest, compute_vault_fingerprints
-from obsidian_rag_mcp.rag_core.retrieval import RetrievalService
-from obsidian_rag_mcp.rag_core.vector_store.sqlite_store import SQLiteVectorStore
+from total_recall.config import AppConfig
+from total_recall.rag_core.embeddings import EmbeddingService
+from total_recall.rag_core.indexing import index_markdown_document
+from total_recall.rag_core.manifest import VaultManifest, compute_vault_fingerprints
+from total_recall.rag_core.retrieval import RetrievalService
+from total_recall.rag_core.vector_store.sqlite_store import SQLiteVectorStore
 
 LOG = logging.getLogger(__name__)
 

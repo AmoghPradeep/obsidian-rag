@@ -19,6 +19,6 @@ The `update_markdown_note` MCP tool has been deemed inconsistent with the intend
 
 ## Impact
 
-- Affected code: `src/obsidian_rag_mcp/mcp_server/server.py`, `src/obsidian_rag_mcp/mcp_server/tools.py`, MCP-related tests, and user-facing docs.
+- Affected code: `src/total_recall/mcp_server/server.py`, `src/total_recall/mcp_server/tools.py`, MCP-related tests, and user-facing docs.
 - API impact: MCP clients relying on `update_markdown_note` will break and must stop invoking it.
 - Operational impact: the MCP server becomes a smaller read-only interface with less mutation risk.

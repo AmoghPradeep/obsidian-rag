@@ -1,4 +1,4 @@
-from obsidian_rag_mcp.rag_core.chunking import chunk_text
+from total_recall.rag_core.chunking import chunk_text
 
 
 def test_chunking_overlap_and_ids() -> None:

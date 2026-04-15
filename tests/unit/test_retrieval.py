@@ -2,10 +2,10 @@ from pathlib import Path
 
 import pytest
 
-from obsidian_rag_mcp.rag_core.embeddings import EmbeddingService
-from obsidian_rag_mcp.rag_core.retrieval import RetrievalService
-from obsidian_rag_mcp.rag_core.vector_store.sqlite_store import SQLiteVectorStore
-from obsidian_rag_mcp.models import Chunk
+from total_recall.rag_core.embeddings import EmbeddingService
+from total_recall.rag_core.retrieval import RetrievalService
+from total_recall.rag_core.vector_store.sqlite_store import SQLiteVectorStore
+from total_recall.models import Chunk
 
 
 def test_retrieval_clamps_k(tmp_path: Path) -> None:

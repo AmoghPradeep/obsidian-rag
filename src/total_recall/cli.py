@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import sys
 
-from obsidian_rag_mcp.background_worker.service import BackgroundWorker
-from obsidian_rag_mcp.config import load_config
-from obsidian_rag_mcp.logging_utils import setup_logging
-from obsidian_rag_mcp.mcp_server.server import run_stdio_server
+from total_recall.background_worker.service import BackgroundWorker
+from total_recall.config import load_config
+from total_recall.logging_utils import setup_logging
+from total_recall.mcp_server.server import run_stdio_server
 
 
 def run_background() -> None:

@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from obsidian_rag_mcp.background_worker.service import BackgroundWorker
-from obsidian_rag_mcp.config import AppConfig
+from total_recall.background_worker.service import BackgroundWorker
+from total_recall.config import AppConfig
 
 
 def test_pdf_ingestion_end_to_end(tmp_path: Path, monkeypatch) -> None:
@@ -22,9 +22,9 @@ def test_pdf_ingestion_end_to_end(tmp_path: Path, monkeypatch) -> None:
         manifest_path=tmp_path / "manifest.json",
     )
 
-    monkeypatch.setattr("obsidian_rag_mcp.background_worker.watchers.is_stable_file", lambda *_args, **_kwargs: True)
+    monkeypatch.setattr("total_recall.background_worker.watchers.is_stable_file", lambda *_args, **_kwargs: True)
     monkeypatch.setattr(
-        "obsidian_rag_mcp.background_worker.pdf_pipeline.convert_pdf_to_jpg_pages",
+        "total_recall.background_worker.pdf_pipeline.convert_pdf_to_jpg_pages",
         lambda _pdf, image_dir: [image_dir / "page-1.jpg"],
     )
 
@@ -44,7 +44,7 @@ def test_pdf_ingestion_end_to_end(tmp_path: Path, monkeypatch) -> None:
     worker.llm_client.chat = fake_chat
 
     # keep deterministic hash/copy filename for backlink assertion
-    monkeypatch.setattr("obsidian_rag_mcp.background_worker.service.hash_file", lambda _p: "fakehash")
+    monkeypatch.setattr("total_recall.background_worker.service.hash_file", lambda _p: "fakehash")
 
     queued = worker.scan_once()
     assert queued["pdf"] == 1

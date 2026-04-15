@@ -7,8 +7,8 @@ import sqlite3
 from pathlib import Path
 from typing import Any
 
-from obsidian_rag_mcp.models import Chunk, RetrievalResult
-from obsidian_rag_mcp.rag_core.vector_store.base import VectorStore
+from total_recall.models import Chunk, RetrievalResult
+from total_recall.rag_core.vector_store.base import VectorStore
 
 
 class SQLiteVectorStore(VectorStore):

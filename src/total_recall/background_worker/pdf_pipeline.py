@@ -11,10 +11,10 @@ try:
 except Exception:  # pragma: no cover
     pdfium = None
 
-from obsidian_rag_mcp.background_worker.page_document_pipeline import build_vault_backlink, process_page_images_to_markdown
-from obsidian_rag_mcp.models import JobResult
-from obsidian_rag_mcp.rag_core.llm_client import OpenAICompatibleClient
-from obsidian_rag_mcp.rag_core.tags import TagCatalog
+from total_recall.background_worker.page_document_pipeline import build_vault_backlink, process_page_images_to_markdown
+from total_recall.models import JobResult
+from total_recall.rag_core.llm_client import OpenAICompatibleClient
+from total_recall.rag_core.tags import TagCatalog
 
 LOG = logging.getLogger(__name__)
 
