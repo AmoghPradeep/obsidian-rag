@@ -52,7 +52,7 @@ class OpenAICompatibleClient:
     def transcribe_audio(self, audio_path: Path, model: str) -> str:
         try:
             LOG.debug("Submitting transcription request model=%s source=%s", model, audio_path)
-            with audio_path.open("rb") as audio_file:
+            with Path(audio_path).open("rb") as audio_file:
                 client = self._client()
                 response = client.audio.transcriptions.create(
                     model=model,

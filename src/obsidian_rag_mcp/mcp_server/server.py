@@ -160,6 +160,9 @@ def _tool_success(payload: dict[str, Any]) -> dict[str, Any]:
 
 
 def run_stdio_server(config: AppConfig) -> None:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="strict", newline="\n")
+
     runtime = MCPRuntime(MCPTools(config))
     LOG.info("Starting MCP stdio server")
     for raw_line in sys.stdin:
