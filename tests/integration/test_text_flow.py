@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from obsidian_rag_mcp.background_worker.service import BackgroundWorker
-from obsidian_rag_mcp.config import AppConfig
+from total_recall.background_worker.service import BackgroundWorker
+from total_recall.config import AppConfig
 
 
 def test_text_ingestion_end_to_end_for_txt_and_md(tmp_path: Path, monkeypatch) -> None:
@@ -22,8 +22,8 @@ def test_text_ingestion_end_to_end_for_txt_and_md(tmp_path: Path, monkeypatch) -
         manifest_path=tmp_path / "manifest.json",
     )
 
-    monkeypatch.setattr("obsidian_rag_mcp.background_worker.watchers.is_stable_file", lambda *_args, **_kwargs: True)
-    monkeypatch.setattr("obsidian_rag_mcp.background_worker.service.hash_file", lambda path: f"fakehash-{path.stem}")
+    monkeypatch.setattr("total_recall.background_worker.watchers.is_stable_file", lambda *_args, **_kwargs: True)
+    monkeypatch.setattr("total_recall.background_worker.service.hash_file", lambda path: f"fakehash-{path.stem}")
 
     (text / "ideas.txt").write_text("rough notes about learning systems", encoding="utf-8")
     (text / "source.md").write_text("# Existing Note\n\nThoughts about retrieval", encoding="utf-8")

@@ -3,11 +3,11 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
-from obsidian_rag_mcp.background_worker.system_prompts import get_normalize_text_to_markdown
-from obsidian_rag_mcp.background_worker.write_markdown import process_json_response
-from obsidian_rag_mcp.models import JobResult
-from obsidian_rag_mcp.rag_core.llm_client import OpenAICompatibleClient
-from obsidian_rag_mcp.rag_core.tags import TagCatalog
+from total_recall.background_worker.system_prompts import get_normalize_text_to_markdown
+from total_recall.background_worker.write_markdown import process_json_response
+from total_recall.models import JobResult
+from total_recall.rag_core.llm_client import OpenAICompatibleClient
+from total_recall.rag_core.tags import TagCatalog
 
 LOG = logging.getLogger(__name__)
 

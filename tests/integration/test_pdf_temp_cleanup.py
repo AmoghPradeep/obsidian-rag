@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from obsidian_rag_mcp.background_worker.pdf_pipeline import process_pdf_to_markdown
-from obsidian_rag_mcp.rag_core.llm_client import OpenAICompatibleClient
-from obsidian_rag_mcp.rag_core.tags import TagCatalog
-from obsidian_rag_mcp.rag_core.vector_store.sqlite_store import SQLiteVectorStore
+from total_recall.background_worker.pdf_pipeline import process_pdf_to_markdown
+from total_recall.rag_core.llm_client import OpenAICompatibleClient
+from total_recall.rag_core.tags import TagCatalog
+from total_recall.rag_core.vector_store.sqlite_store import SQLiteVectorStore
 
 
 def test_pdf_temp_images_cleaned(tmp_path: Path, monkeypatch) -> None:
@@ -20,7 +20,7 @@ def test_pdf_temp_images_cleaned(tmp_path: Path, monkeypatch) -> None:
     client = OpenAICompatibleClient("https://api.openai.com/v1", "gpt-5.4-mini")
 
     monkeypatch.setattr(
-        "obsidian_rag_mcp.background_worker.pdf_pipeline.convert_pdf_to_jpg_pages",
+        "total_recall.background_worker.pdf_pipeline.convert_pdf_to_jpg_pages",
         lambda _pdf, image_dir: [image_dir / "page-1.jpg"],
     )
 

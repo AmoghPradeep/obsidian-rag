@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 from typing import Iterable
 
-from obsidian_rag_mcp.models import Chunk
+from total_recall.models import Chunk
 
 
 def chunk_text(text: str, doc_path: str, chunk_size: int = 800, chunk_overlap: int = 120) -> list[Chunk]:

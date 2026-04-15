@@ -3,12 +3,12 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
-from obsidian_rag_mcp.background_worker.audio_pipeline import process_audio_to_markdown
-from obsidian_rag_mcp.background_worker.queue import DurableJobQueue, IngestionJob
-from obsidian_rag_mcp.mcp_server.server import MCPRuntime
-from obsidian_rag_mcp.rag_core.llm_client import OpenAICompatibleClient
-from obsidian_rag_mcp.rag_core.tags import TagCatalog
-from obsidian_rag_mcp.rag_core.vector_store.sqlite_store import SQLiteVectorStore
+from total_recall.background_worker.audio_pipeline import process_audio_to_markdown
+from total_recall.background_worker.queue import DurableJobQueue, IngestionJob
+from total_recall.mcp_server.server import MCPRuntime
+from total_recall.rag_core.llm_client import OpenAICompatibleClient
+from total_recall.rag_core.tags import TagCatalog
+from total_recall.rag_core.vector_store.sqlite_store import SQLiteVectorStore
 
 
 def test_durable_queue_logs_enqueue_duplicate_and_pop(tmp_path: Path, caplog) -> None:
@@ -32,7 +32,7 @@ def test_audio_pipeline_logs_exception_with_source_context(tmp_path: Path, monke
     audio = tmp_path / "note.m4a"
     audio.write_bytes(b"audio")
 
-    monkeypatch.setattr("obsidian_rag_mcp.background_worker.audio_pipeline.compress_for_asr_tempdir", lambda path: path)
+    monkeypatch.setattr("total_recall.background_worker.audio_pipeline.compress_for_asr_tempdir", lambda path: path)
 
     class _FailingClient:
         def transcribe_audio(self, *_args, **_kwargs):

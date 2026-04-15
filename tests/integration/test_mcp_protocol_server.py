@@ -1,4 +1,4 @@
-from obsidian_rag_mcp.mcp_server.server import MCPRuntime
+from total_recall.mcp_server.server import MCPRuntime
 
 
 class _FakeTools:

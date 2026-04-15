@@ -42,7 +42,7 @@ The desired outcome is not to collapse the pipelines themselves, but to collapse
 1. Replace watch-path config fields with one `incoming_root` field in the settings model.
 2. Derive per-type watch paths from `incoming_root` and create the child directories at startup.
 3. Update tests to create the new `audio`, `pdf`, `image`, and `text` child directories beneath one incoming root.
-4. Update README and runbook examples to use `OBRAG_INCOMING_ROOT`.
+4. Update README and runbook examples to use `TOTAL_RECALL_INCOMING_ROOT`.
 
 ## Open Questions
 

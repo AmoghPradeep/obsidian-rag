@@ -1,4 +1,4 @@
-# Obsidian RAG MCP
+# Total Recall
 
 Turn an Obsidian vault into a long-term memory system for LLM agents.
 
@@ -23,7 +23,7 @@ Most useful personal knowledge is messy at the source:
 
 LLM agents are good at using knowledge, but bad at remembering it unless that knowledge is captured, normalized, and indexed somewhere durable.
 
-Obsidian RAG MCP is built to close that gap. It gives you a way to continuously turn raw personal knowledge into an agent-readable memory base.
+Total Recall is built to close that gap. It gives you a way to continuously turn raw personal knowledge into an agent-readable memory base.
 
 ## How It Works
 
@@ -83,16 +83,16 @@ python -m pip install -e .[test]
 Start the background worker:
 
 ```bash
-obsidian-rag-background
+total-recall-background
 ```
 
 Start the MCP server:
 
 ```bash
-obsidian-rag-mcp-server
+total-recall-server
 ```
 
-Configuration is read from `OBRAG_` environment variables and `~/.obragconfig/.env`.
+Configuration is read from `TOTAL_RECALL_` environment variables and `~/.total-recall/.env`.
 Incoming source files are organized under one configurable root with fixed child directories: `audio`, `pdf`, `image`, and `text`.
 
 For operational setup and recovery details, see [docs/runbook.md](docs/runbook.md).

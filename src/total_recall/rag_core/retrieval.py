@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from obsidian_rag_mcp.rag_core.embeddings import EmbeddingService
-from obsidian_rag_mcp.rag_core.vector_store.base import VectorStore
+from total_recall.rag_core.embeddings import EmbeddingService
+from total_recall.rag_core.vector_store.base import VectorStore
 
 
 class RetrievalService:

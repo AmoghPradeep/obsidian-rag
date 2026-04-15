@@ -6,19 +6,19 @@ import tempfile
 import time
 from pathlib import Path
 
-from obsidian_rag_mcp.background_worker.audio_pipeline import process_audio_to_markdown
-from obsidian_rag_mcp.background_worker.image_folder_pipeline import process_image_folder_to_markdown
-from obsidian_rag_mcp.background_worker.pdf_pipeline import process_pdf_to_markdown
-from obsidian_rag_mcp.background_worker.text_pipeline import process_text_to_markdown
-from obsidian_rag_mcp.background_worker.queue import DurableJobQueue
-from obsidian_rag_mcp.background_worker.watchers import scan_and_enqueue
-from obsidian_rag_mcp.config import AppConfig
-from obsidian_rag_mcp.rag_core.embeddings import EmbeddingService
-from obsidian_rag_mcp.rag_core.indexing import index_markdown_document
-from obsidian_rag_mcp.rag_core.llm_client import OpenAICompatibleClient
-from obsidian_rag_mcp.rag_core.tags import TagCatalog
-from obsidian_rag_mcp.rag_core.vector_store.sqlite_store import SQLiteVectorStore
-from obsidian_rag_mcp.background_worker.file_utils import hash_file
+from total_recall.background_worker.audio_pipeline import process_audio_to_markdown
+from total_recall.background_worker.image_folder_pipeline import process_image_folder_to_markdown
+from total_recall.background_worker.pdf_pipeline import process_pdf_to_markdown
+from total_recall.background_worker.text_pipeline import process_text_to_markdown
+from total_recall.background_worker.queue import DurableJobQueue
+from total_recall.background_worker.watchers import scan_and_enqueue
+from total_recall.config import AppConfig
+from total_recall.rag_core.embeddings import EmbeddingService
+from total_recall.rag_core.indexing import index_markdown_document
+from total_recall.rag_core.llm_client import OpenAICompatibleClient
+from total_recall.rag_core.tags import TagCatalog
+from total_recall.rag_core.vector_store.sqlite_store import SQLiteVectorStore
+from total_recall.background_worker.file_utils import hash_file
 
 LOG = logging.getLogger(__name__)
 
@@ -114,7 +114,7 @@ class BackgroundWorker:
             time.sleep(poll_seconds)
 
     def _run_job_with_retry(self, job_type: str, source: Path, out_path: Path, retries: int = 2):
-        image_dir = Path(tempfile.gettempdir()) / "obrag_pdf_pages"
+        image_dir = Path(tempfile.gettempdir()) / "total_recall_pdf_pages"
         last_result = None
         for attempt in range(retries + 1):
             LOG.info(

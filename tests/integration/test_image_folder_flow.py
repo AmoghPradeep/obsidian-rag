@@ -1,8 +1,8 @@
 from pathlib import Path
 
-from obsidian_rag_mcp.background_worker.service import BackgroundWorker
-from obsidian_rag_mcp.config import AppConfig
-from obsidian_rag_mcp.mcp_server.tools import MCPTools
+from total_recall.background_worker.service import BackgroundWorker
+from total_recall.config import AppConfig
+from total_recall.mcp_server.tools import MCPTools
 
 
 def test_image_folder_ingestion_end_to_end(tmp_path: Path, monkeypatch) -> None:
@@ -28,8 +28,8 @@ def test_image_folder_ingestion_end_to_end(tmp_path: Path, monkeypatch) -> None:
         manifest_path=tmp_path / "manifest.json",
     )
 
-    monkeypatch.setattr("obsidian_rag_mcp.background_worker.watchers.is_stable_file", lambda *_args, **_kwargs: True)
-    monkeypatch.setattr("obsidian_rag_mcp.background_worker.watchers.is_stable_directory", lambda *_args, **_kwargs: True)
+    monkeypatch.setattr("total_recall.background_worker.watchers.is_stable_file", lambda *_args, **_kwargs: True)
+    monkeypatch.setattr("total_recall.background_worker.watchers.is_stable_directory", lambda *_args, **_kwargs: True)
 
     def fake_chat(prompt: str, images=None, require_success=False):
         if "extracting content from a handwritten-notes PDF page image" in prompt:

@@ -4,57 +4,57 @@
 
 Configuration is loaded in this order:
 
-1. Environment variables prefixed with `OBRAG_`
-2. `.env` file at `~/.obragconfig/.env`
+1. Environment variables prefixed with `TOTAL_RECALL_`
+2. `.env` file at `~/.total-recall/.env`
 3. Code defaults
 
-Nested config keys use `__` separators (for example `OBRAG_MODELS__GENERATION_MODEL`).
+Nested config keys use `__` separators (for example `TOTAL_RECALL_MODELS__GENERATION_MODEL`).
 
-- `OBRAG_VAULT_PATH`
-- `OBRAG_INCOMING_ROOT`
-- `OBRAG_DB_PATH`
-- `OBRAG_MANIFEST_PATH`
-- `OBRAG_QUEUE_PATH`
-- `OBRAG_WATCHER_STABILITY_SECONDS`
-- `OBRAG_MODELS__API_BASE_URL` (default `https://api.openai.com/v1`)
-- `OBRAG_MODELS__GENERATION_MODEL`
-- `OBRAG_MODELS__TRANSCRIPTION_MODEL`
-- `OBRAG_MODELS__EMBEDDING_MODEL`
-- `OBRAG_CHUNKING__CHUNK_SIZE` (default `800`)
-- `OBRAG_CHUNKING__CHUNK_OVERLAP` (default `120`)
+- `TOTAL_RECALL_VAULT_PATH`
+- `TOTAL_RECALL_INCOMING_ROOT`
+- `TOTAL_RECALL_DB_PATH`
+- `TOTAL_RECALL_MANIFEST_PATH`
+- `TOTAL_RECALL_QUEUE_PATH`
+- `TOTAL_RECALL_WATCHER_STABILITY_SECONDS`
+- `TOTAL_RECALL_MODELS__API_BASE_URL` (default `https://api.openai.com/v1`)
+- `TOTAL_RECALL_MODELS__GENERATION_MODEL`
+- `TOTAL_RECALL_MODELS__TRANSCRIPTION_MODEL`
+- `TOTAL_RECALL_MODELS__EMBEDDING_MODEL`
+- `TOTAL_RECALL_CHUNKING__CHUNK_SIZE` (default `800`)
+- `TOTAL_RECALL_CHUNKING__CHUNK_OVERLAP` (default `120`)
 
-Create/update `~/.obragconfig/.env`:
+Create/update `~/.total-recall/.env`:
 
 ```dotenv
-OBRAG_VAULT_PATH=/home/<current_user>/Documents/obsidian-rag-vault
-OBRAG_INCOMING_ROOT=/home/<current_user>/.obragconfig/incoming
-OBRAG_DB_PATH=/home/<current_user>/.obragconfig/data/rag.sqlite3
-OBRAG_MODELS__API_BASE_URL=https://api.openai.com/v1
-OBRAG_MODELS__GENERATION_MODEL=gpt-5.4-mini
-OBRAG_MODELS__TRANSCRIPTION_MODEL=gpt-4o-mini-transcribe
-OBRAG_MODELS__EMBEDDING_MODEL=text-embedding-3-large
+TOTAL_RECALL_VAULT_PATH=/home/<current_user>/Documents/total-recall-vault
+TOTAL_RECALL_INCOMING_ROOT=/home/<current_user>/.total-recall/incoming
+TOTAL_RECALL_DB_PATH=/home/<current_user>/.total-recall/data/rag.sqlite3
+TOTAL_RECALL_MODELS__API_BASE_URL=https://api.openai.com/v1
+TOTAL_RECALL_MODELS__GENERATION_MODEL=gpt-5.4-mini
+TOTAL_RECALL_MODELS__TRANSCRIPTION_MODEL=gpt-4o-mini-transcribe
+TOTAL_RECALL_MODELS__EMBEDDING_MODEL=text-embedding-3-large
 ```
 
-The app derives its watched source folders from `OBRAG_INCOMING_ROOT`:
+The app derives its watched source folders from `TOTAL_RECALL_INCOMING_ROOT`:
 
 - `audio`
 - `pdf`
 - `image`
 - `text`
 
-Each immediate child directory under `OBRAG_INCOMING_ROOT/image` is treated as one multi-image document. For example, `.../image/note-1/image-1-of-3.png` and `image-2-of-3.png` are combined into one markdown note.
-Files placed under `OBRAG_INCOMING_ROOT/text` are ingested as text sources when they have `.txt` or `.md` extensions.
+Each immediate child directory under `TOTAL_RECALL_INCOMING_ROOT/image` is treated as one multi-image document. For example, `.../image/note-1/image-1-of-3.png` and `image-2-of-3.png` are combined into one markdown note.
+Files placed under `TOTAL_RECALL_INCOMING_ROOT/text` are ingested as text sources when they have `.txt` or `.md` extensions.
 
 ## Start background worker
 
 ```powershell
-obsidian-rag-background
+total-recall-background
 ```
 
 ## Start MCP tool server
 
 ```powershell
-obsidian-rag-mcp-server
+total-recall-server
 ```
 
 MCP clients should use JSON-RPC over stdio with `initialize`, `tools/list`, and `tools/call`.
@@ -73,22 +73,22 @@ See `docs/mcp-migration.md` for migration details from the legacy custom JSON lo
 
 ## Linux service setup
 
-Copy `scripts/obrag-background.service.example` to `~/.config/systemd/user/obrag-background.service`, adjust `WorkingDirectory` if needed, then enable it:
+Copy `scripts/total-recall-background.service.example` to `~/.config/systemd/user/total-recall-background.service`, adjust `WorkingDirectory` if needed, then enable it:
 
 ```bash
 mkdir -p ~/.config/systemd/user
-cp scripts/obrag-background.service.example ~/.config/systemd/user/obrag-background.service
+cp scripts/total-recall-background.service.example ~/.config/systemd/user/total-recall-background.service
 systemctl --user daemon-reload
-systemctl --user enable --now obrag-background.service
+systemctl --user enable --now total-recall-background.service
 ```
 
 ## Updating config for Linux service
 
-1. Edit `~/.obragconfig/.env`.
+1. Edit `~/.total-recall/.env`.
 2. Restart the user service so it reloads variables.
 
 ```bash
-systemctl --user restart obrag-background.service
+systemctl --user restart total-recall-background.service
 ```
 
 Note: config is read only at process startup. Changes do not apply until restart.

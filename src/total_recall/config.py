@@ -6,7 +6,7 @@ from pathlib import Path
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-DEFAULT_ENV_DIR = Path.home() / ".obragconfig"
+DEFAULT_ENV_DIR = Path.home() / ".total-recall"
 DEFAULT_ENV_FILE = DEFAULT_ENV_DIR / ".env"
 
 
@@ -18,14 +18,14 @@ def default_runtime_paths(
     resolved_home = home or Path.home()
     resolved_platform = (platform_name or os.name).lower()
 
-    config_root = resolved_home / ".obragconfig"
+    config_root = resolved_home / ".total-recall"
     documents_root = resolved_home / "Documents"
     if resolved_platform == "nt":
         documents_root = resolved_home / "Documents"
 
     return {
         "config_root": config_root,
-        "vault_path": documents_root / "obsidian-rag-vault",
+        "vault_path": documents_root / "total-recall-vault",
         "incoming_root": config_root / "incoming",
         "db_path": config_root / "data" / "rag.sqlite3",
         "manifest_path": config_root / "data" / "manifest.json",
@@ -47,7 +47,7 @@ class ModelConfig(BaseModel):
 
 class AppConfig(BaseSettings):
     model_config = SettingsConfigDict(
-        env_prefix="OBRAG_",
+        env_prefix="TOTAL_RECALL_",
         env_file=str(DEFAULT_ENV_FILE),
         env_nested_delimiter="__",
         extra="ignore",

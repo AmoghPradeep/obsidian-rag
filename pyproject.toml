@@ -3,7 +3,7 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "obsidian-rag-mcp"
+name = "total-recall"
 version = "0.1.0"
 description = "RAG-based MCP tooling for an Obsidian vault"
 readme = "README.md"
@@ -27,8 +27,8 @@ test = [
 ]
 
 [project.scripts]
-obsidian-rag-background = "obsidian_rag_mcp.cli:run_background"
-obsidian-rag-mcp-server = "obsidian_rag_mcp.cli:run_mcp_server"
+total-recall-background = "total_recall.cli:run_background"
+total-recall-server = "total_recall.cli:run_mcp_server"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

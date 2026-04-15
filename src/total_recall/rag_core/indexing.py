@@ -3,9 +3,9 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
-from obsidian_rag_mcp.rag_core.chunking import chunk_text
-from obsidian_rag_mcp.rag_core.embeddings import EmbeddingService
-from obsidian_rag_mcp.rag_core.vector_store.base import VectorStore
+from total_recall.rag_core.chunking import chunk_text
+from total_recall.rag_core.embeddings import EmbeddingService
+from total_recall.rag_core.vector_store.base import VectorStore
 
 LOG = logging.getLogger(__name__)
 
